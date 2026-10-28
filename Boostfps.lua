@@ -84,7 +84,7 @@ RunService.RenderStepped:Connect(function(dt)
 end)
 
 -- ==========================================
--- PHẦN 3: NÚT TIA CHỞP GÓC TRÊN PHẢI
+-- PHẦN 3: NÚT TIA CHỚP GÓC TRÊN PHẢI
 -- ==========================================
 local lightningBtn = Instance.new("TextButton")
 lightningBtn.Size = UDim2.new(0, 45, 0, 45)
@@ -106,11 +106,11 @@ strokeBtn.Thickness = 2
 strokeBtn.Parent = lightningBtn
 
 -- ==========================================
--- PHẦN 4: BẢNG ACCOUNT PROGRESS & CHỮ KÝ BÍ MẬT
+-- PHẦN 4: BẢNG ACCOUNT PROGRESS & CHỮ KÝ BÍ MẬT (ĐÃ CĂN CHỈNH ĐẸP)
 -- ==========================================
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 280, 0, 235)
-mainFrame.Position = UDim2.new(1, -300, 0, 70)
+mainFrame.Size = UDim2.new(0, 300, 0, 200)
+mainFrame.Position = UDim2.new(1, -320, 0, 70)
 mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 mainFrame.Visible = false
 mainFrame.Parent = screenGui
@@ -124,12 +124,13 @@ strokeFrame.Color = Color3.fromRGB(255, 220, 0)
 strokeFrame.Thickness = 1.5
 strokeFrame.Parent = mainFrame
 
+-- Tiêu đề
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.Size = UDim2.new(1, 0, 0, 35)
 titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextColor3 = Color3.fromRGB(255, 220, 0)
 titleLabel.Text = "⚡ Account Progress & Network"
-titleLabel.TextSize = 14
+titleLabel.TextSize = 13
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.Parent = mainFrame
 
@@ -137,41 +138,59 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 12)
 titleCorner.Parent = titleLabel
 
+-- Tự động xếp hàng ngăn nắp (UIListLayout)
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = mainFrame
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 8)
+
 local padding = Instance.new("UIPadding")
-padding.PaddingTop = UDim.new(0, 50)
-padding.PaddingLeft = UDim.new(0, 15)
-padding.PaddingRight = UDim.new(0, 15)
+padding.PaddingTop = UDim.new(0, 45)
+padding.PaddingLeft = UDim.new(0, 12)
+padding.PaddingRight = UDim.new(0, 12)
 padding.Parent = mainFrame
 
-local function createInfoLine(name)
+local function createInfoLine(text, order)
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, 25)
+    lbl.Size = UDim2.new(1, 0, 0, 20)
     lbl.BackgroundTransparency = 1
     lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
-    lbl.TextSize = 13
+    lbl.TextSize = 12
     lbl.Font = Enum.Font.Gotham
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Text = name .. ": Đang tải..."
+    lbl.Text = text
+    lbl.LayoutOrder = order
     lbl.Parent = mainFrame
     return lbl
 end
 
-local pingLbl = createInfoLine("📶 Ping (Độ trễ): ")
-local fpsDetailLbl = createInfoLine("💻 FPS Chi tiết: ")
-local wifiStatusLbl = createInfoLine("🌐 Trạng thái Mạng: Ổn định (Boosted)")
-local statusLbl = createInfoLine("🚀 Trạng thái Giảm Lag: Đã kích hoạt")
+local pingLbl = createInfoLine("📶 Ping (Độ trễ): Đang tải...", 1)
+local fpsDetailLbl = createInfoLine("💻 FPS Chi tiết: Đang tải...", 2)
+local wifiStatusLbl = createInfoLine("🌐 Trạng thái Mạng: Ổn định (Boosted)", 3)
+local statusLbl = createInfoLine("🚀 Trạng thái Giảm Lag: Đã kích hoạt", 4)
 
--- Chữ ký siêu nhỏ, mờ mờ ở góc dưới bảng để giữ bí mật tuyệt đối
+-- Chữ ký siêu nhỏ
 local secretSign = Instance.new("TextLabel")
 secretSign.Size = UDim2.new(1, 0, 0, 15)
-secretSign.Position = UDim2.new(0, 0, 1, -18)
 secretSign.BackgroundTransparency = 1
-secretSign.TextColor3 = Color3.fromRGB(80, 80, 80)
+secretSign.TextColor3 = Color3.fromRGB(90, 90, 90)
 secretSign.TextSize = 9
 secretSign.Font = Enum.Font.Gotham
 secretSign.TextXAlignment = Enum.TextXAlignment.Right
 secretSign.Text = "made by Gemini "
+secretSign.LayoutOrder = 5
 secretSign.Parent = mainFrame
+
+local isOpen = false
+lightningBtn.MouseButton1Click:Connect(function()
+    isOpen = not isOpen
+    mainFrame.Visible = isOpen
+    if isOpen then
+        lightningBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    else
+        lightningBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    end
+end)
 
 RunService.RenderStepped:Connect(function()
     if mainFrame.Visible then
@@ -193,15 +212,5 @@ RunService.RenderStepped:Connect(function()
                 wifiStatusLbl.TextColor3 = Color3.fromRGB(255, 170, 0)
             end
         end)
-    end
-end)
-
-lightningBtn.MouseButton1Click:Connect(function()
-    isOpen = not isOpen
-    mainFrame.Visible = isOpen
-    if isOpen then
-        lightningBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    else
-        lightningBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     end
 end)
