@@ -1,5 +1,5 @@
 --[[
-    Script Chống Lag Cực Hạn (100,000 Studs Anti-Lag & Physics Optimizer)
+    Script Chống Lag Cực Hạn - Tối Ưu Hóa Nhẹ Nhàng (100,000 Studs)
 ]]--
 
 local Players = game:GetService("Players")
@@ -11,7 +11,6 @@ local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
 
--- Xóa UI cũ nếu có
 if CoreGui:FindFirstChild("AdvancedPerformanceHub") then
     CoreGui.AdvancedPerformanceHub:Destroy()
 end
@@ -21,49 +20,40 @@ screenGui.Name = "AdvancedPerformanceHub"
 screenGui.Parent = CoreGui
 
 -- ==========================================
--- PHẦN 1: TỐI ƯU HÓA PHẠM VI 100,000 STUDS
+-- PHẦN 1: TỐI ƯU HÓA KHÔNG GIAN (CHỐNG TREO MÁY)
 -- ==========================================
 task.spawn(function()
     pcall(function()
         Lighting.GlobalShadows = false
         Lighting.FogEnd = 9e9
         Lighting.Brightness = 2
-        for _, v in ipairs(Lighting:GetChildren()) do
-            if v:IsA("PostEffect") or v:IsA("Sky") or v:IsA("Atmosphere") then
-                v:Destroy()
-            end
-        end
         
         if Terrain then
             Terrain.WaterWaveSize = 0
             Terrain.WaterWaveTransparency = 1
         end
         
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        
-        -- Quét khoảng cách lớn chống văng lag
-        RunService.Heartbeat:Connect(function()
-            pcall(function()
-                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    local charPos = LocalPlayer.Character.HumanoidRootPart.Position
-                    for _, part in ipairs(Workspace:GetDescendants()) do
-                        if part:IsA("BasePart") and not part.Anchored then
-                            local dist = (part.Position - charPos).Magnitude
-                            if dist > 300 and dist <= 100000 then
-                                part.AssemblyLinearVelocity = Vector3.new(0,0,0)
-                                part.AssemblyAngularVelocity = Vector3.new(0,0,0)
-                                part.CanCollide = false
-                                part.Transparency = 0.5
+        -- Quét định kỳ mỗi 1 giây thay vì quét liên tục để cứu máy tính bảng
+        task.spawn(function()
+            while true do
+                pcall(function()
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local charPos = LocalPlayer.Character.HumanoidRootPart.Position
+                        for _, part in ipairs(Workspace:GetDescendants()) do
+                            if part:IsA("BasePart") and not part.Anchored then
+                                local dist = (part.Position - charPos).Magnitude
+                                if dist > 200 and dist <= 100000 then
+                                    part.AssemblyLinearVelocity = Vector3.new(0,0,0)
+                                    part.CanCollide = false
+                                    part.Transparency = 0.6
+                                end
                             end
                         end
                     end
-                end
-            end)
+                end)
+                task.wait(1) -- Nghỉ 1 giây rồi quét tiếp, cực kỳ mượt mà
+            end
         end)
-        
-        if settings():FindFirstChild("Network") then
-            settings().Network.IncomingReplicationLag = 0
-        end
     end)
 end)
 
@@ -89,7 +79,6 @@ RunService.RenderStepped:Connect(function(dt)
     if lastUpdate >= 0.5 then
         local fps = math.floor(frameCount / lastUpdate)
         fpsLabel.Text = "FPS: " .. fps
-        fpsLabel.TextColor3 = Color3.fromRGB(math.random(100,255), 255, math.random(100,255))
         frameCount = 0
         lastUpdate = 0
     end
@@ -121,7 +110,7 @@ strokeBtn.Parent = lightningBtn
 -- PHẦN 4: BẢNG GIAO DIỆN & CHỮ KÝ BÍ MẬT
 -- ==========================================
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 200)
+mainFrame.Size = UDim2.new(0, 300, 0, 180)
 mainFrame.Position = UDim2.new(1, -320, 0, 70)
 mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 mainFrame.Visible = false
@@ -175,9 +164,8 @@ local function createInfoLine(text, order)
 end
 
 local pingLbl = createInfoLine("📶 Ping: Đang tải...", 1)
-local fpsDetailLbl = createInfoLine("💻 FPS Chi tiết: Đang tải...", 2)
-local wifiStatusLbl = createInfoLine("🌐 Phạm vi quét: 100,000 Studs (Stable)", 3)
-local statusLbl = createInfoLine("🚀 Trạng thái: Chống Lag Cực Hạn Bật", 4)
+local fpsDetailLbl = createInfoLine("💻 Trạng thái: Hoạt động ổn định", 2)
+local statusLbl = "🚀 100k Studs Anti-Lag: Bật"
 
 local secretSign = Instance.new("TextLabel")
 secretSign.Size = UDim2.new(1, 0, 0, 15)
@@ -187,18 +175,13 @@ secretSign.TextSize = 9
 secretSign.Font = Enum.Font.Gotham
 secretSign.TextXAlignment = Enum.TextXAlignment.Right
 secretSign.Text = "made by Gemini "
-secretSign.LayoutOrder = 5
+secretSign.LayoutOrder = 4
 secretSign.Parent = mainFrame
 
 local isOpen = false
 lightningBtn.MouseButton1Click:Connect(function()
     isOpen = not isOpen
     mainFrame.Visible = isOpen
-    if isOpen then
-        lightningBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    else
-        lightningBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    end
 end)
 
 RunService.RenderStepped:Connect(function()
@@ -209,7 +192,6 @@ RunService.RenderStepped:Connect(function()
                 pingValue = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
             end
             pingLbl.Text = "📶 Ping: " .. pingValue .. " ms"
-            fpsDetailLbl.Text = "💻 FPS: " .. math.floor(workspace:GetRealPhysicsFPS())
         end)
     end
 end)
