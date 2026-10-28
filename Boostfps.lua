@@ -137,4 +137,79 @@ strokeFrame.Thickness = 1.5
 strokeFrame.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0,
+titleLabel.Size = UDim2.new(1, 0, 0, 35)
+titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+titleLabel.TextColor3 = Color3.fromRGB(255, 220, 0)
+titleLabel.Text = "⚡ 100k Studs Anti-Lag Protection"
+titleLabel.TextSize = 12
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleLabel
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = mainFrame
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 8)
+
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0, 45)
+padding.PaddingLeft = UDim.new(0, 12)
+padding.PaddingRight = UDim.new(0, 12)
+padding.Parent = mainFrame
+
+local function createInfoLine(text, order)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 20)
+    lbl.BackgroundTransparency = 1
+    lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Text = text
+    lbl.LayoutOrder = order
+    lbl.Parent = mainFrame
+    return lbl
+end
+
+local pingLbl = createInfoLine("📶 Ping: Đang tải...", 1)
+local fpsDetailLbl = createInfoLine("💻 FPS Chi tiết: Đang tải...", 2)
+local wifiStatusLbl = createInfoLine("🌐 Phạm vi quét: 100,000 Studs (Stable)", 3)
+local statusLbl = createInfoLine("🚀 Trạng thái: Chống Lag Cực Hạn Bật", 4)
+
+local secretSign = Instance.new("TextLabel")
+secretSign.Size = UDim2.new(1, 0, 0, 15)
+secretSign.BackgroundTransparency = 1
+secretSign.TextColor3 = Color3.fromRGB(90, 90, 90)
+secretSign.TextSize = 9
+secretSign.Font = Enum.Font.Gotham
+secretSign.TextXAlignment = Enum.TextXAlignment.Right
+secretSign.Text = "made by Gemini "
+secretSign.LayoutOrder = 5
+secretSign.Parent = mainFrame
+
+local isOpen = false
+lightningBtn.MouseButton1Click:Connect(function()
+    isOpen = not isOpen
+    mainFrame.Visible = isOpen
+    if isOpen then
+        lightningBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    else
+        lightningBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if mainFrame.Visible then
+        pcall(function()
+            local pingValue = 0
+            if Stats.Network.ServerStatsItem["Data Ping"]:GetValue() then
+                pingValue = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            end
+            pingLbl.Text = "📶 Ping: " .. pingValue .. " ms"
+            fpsDetailLbl.Text = "💻 FPS: " .. math.floor(workspace:GetRealPhysicsFPS())
+        end)
+    end
+end)
