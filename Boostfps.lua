@@ -1,5 +1,5 @@
 --[[
-    Script Chống Lag Cực Hạn - Bản Vá Lỗi PlayerGui (100k Studs)
+    Script Chống Lag Cực Hạn - Bản Vá Lỗi An Toàn Tuyệt Đối (100k Studs)
 ]]--
 
 local Players = game:GetService("Players")
@@ -9,7 +9,10 @@ local Workspace = game:GetService("Workspace")
 local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Tìm PlayerGui an toàn không sợ bị treo game
+local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
+if not PlayerGui then return end
 
 -- Xóa UI cũ nếu có tránh bị trùng
 if PlayerGui:FindFirstChild("AdvancedPerformanceHub") then
