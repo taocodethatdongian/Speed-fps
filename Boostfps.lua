@@ -1,5 +1,5 @@
 --[[
-    Script Tối Ưu Hóa & Giám Sát Hiệu Năng (FPS & Network Booster)
+    Script Chống Lag Cực Hạn (100,000 Studs Anti-Lag & Physics Optimizer)
 ]]--
 
 local Players = game:GetService("Players")
@@ -9,6 +9,7 @@ local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Stats = game:GetService("Stats")
+local LocalPlayer = Players.LocalPlayer
 
 -- Xóa UI cũ nếu có
 if CoreGui:FindFirstChild("AdvancedPerformanceHub") then
@@ -20,7 +21,7 @@ screenGui.Name = "AdvancedPerformanceHub"
 screenGui.Parent = CoreGui
 
 -- ==========================================
--- PHẦN 1: TỰ ĐỘNG TỐI ƯU HÓA GIẢM LAG
+-- PHẦN 1: TỐI ƯU HÓA PHẠM VI 100,000 STUDS (CHỐNG VĂNG GẠCH & SPAWN ĐỒ)
 -- ==========================================
 task.spawn(function()
     pcall(function()
@@ -40,14 +41,27 @@ task.spawn(function()
         
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
         
-        for _, part in ipairs(Workspace:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Material = Enum.Material.SmoothPlastic
-                part.Reflectance = 0
-            elseif part:IsA("Decal") or part:IsA("Texture") then
-                part.Transparency = 1
-            end
-        end
+        -- Siêu tối ưu: Quét toàn bộ workspace trong phạm vi cực rộng và tắt vật lý các part thừa
+        RunService.Heartbeat:Connect(function()
+            pcall(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local charPos = LocalPlayer.Character.HumanoidRootPart.Position
+                    for _, part in ipairs(Workspace:GetDescendants()) do
+                        if part:IsA("BasePart") and not part.Anchored then
+                            -- Nếu các khối part văng ra quá xa hoặc rơi lả tả quá mức (quét bán kính lớn)
+                            local dist = (part.Position - charPos).Magnitude
+                            if dist > 300 and dist <= 100000 then
+                                part.AssemblyLinearVelocity = Vector3.new(0,0,0)
+                                part.AssemblyAngularVelocity = Vector3.new(0,0,0)
+                                -- Tắt va chạm và cho trong suốt những khối rác ở xa để cứu FPS
+                                part.CanCollide = false
+                                part.Transparency = 0.5
+                            end
+                        end
+                    end
+                end
+            end)
+        end)
         
         if settings():FindFirstChild("Network") then
             settings().Network.IncomingReplicationLag = 0
@@ -106,7 +120,7 @@ strokeBtn.Thickness = 2
 strokeBtn.Parent = lightningBtn
 
 -- ==========================================
--- PHẦN 4: BẢNG ACCOUNT PROGRESS & CHỮ KÝ BÍ MẬT (ĐÃ CĂN CHỈNH ĐẸP)
+-- PHẦN 4: BẢNG ACCOUNT PROGRESS & CHỮ KÝ BÍ MẬT
 -- ==========================================
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 300, 0, 200)
@@ -124,13 +138,12 @@ strokeFrame.Color = Color3.fromRGB(255, 220, 0)
 strokeFrame.Thickness = 1.5
 strokeFrame.Parent = mainFrame
 
--- Tiêu đề
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 35)
 titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 titleLabel.TextColor3 = Color3.fromRGB(255, 220, 0)
-titleLabel.Text = "⚡ Account Progress & Network"
-titleLabel.TextSize = 13
+titleLabel.Text = "⚡ 100k Studs Anti-Lag Protection"
+titleLabel.TextSize = 12
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.Parent = mainFrame
 
@@ -138,7 +151,6 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 12)
 titleCorner.Parent = titleLabel
 
--- Tự động xếp hàng ngăn nắp (UIListLayout)
 local listLayout = Instance.new("UIListLayout")
 listLayout.Parent = mainFrame
 listLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -164,10 +176,10 @@ local function createInfoLine(text, order)
     return lbl
 end
 
-local pingLbl = createInfoLine("📶 Ping (Độ trễ): Đang tải...", 1)
+local pingLbl = createInfoLine("📶 Ping: Đang tải...", 1)
 local fpsDetailLbl = createInfoLine("💻 FPS Chi tiết: Đang tải...", 2)
-local wifiStatusLbl = createInfoLine("🌐 Trạng thái Mạng: Ổn định (Boosted)", 3)
-local statusLbl = createInfoLine("🚀 Trạng thái Giảm Lag: Đã kích hoạt", 4)
+local wifiStatusLbl = createInfoLine("🌐 Phạm vi quét: 100,000 Studs (Stable)", 3)
+local statusLbl = createInfoLine("🚀 Trạng thái: Chống Lag Cực Hạn Bật", 4)
 
 -- Chữ ký siêu nhỏ
 local secretSign = Instance.new("TextLabel")
@@ -192,7 +204,7 @@ lightningBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.RenderStaged or RunService.RenderStepped:Connect(function()
     if mainFrame.Visible then
         pcall(function()
             local pingValue = 0
@@ -203,14 +215,6 @@ RunService.RenderStepped:Connect(function()
             
             local currentFPS = math.floor(1 / RunService.RenderStepped:Wait())
             fpsDetailLbl.Text = "💻 FPS: " .. currentFPS
-            
-            if pingValue < 150 then
-                wifiStatusLbl.Text = "🌐 Tình trạng Wi-Fi: Tốt / Ổn định"
-                wifiStatusLbl.TextColor3 = Color3.fromRGB(0, 255, 128)
-            else
-                wifiStatusLbl.Text = "🌐 Tình trạng Wi-Fi: Yếu (Đang tối ưu)"
-                wifiStatusLbl.TextColor3 = Color3.fromRGB(255, 170, 0)
-            end
         end)
     end
 end)
