@@ -1,23 +1,25 @@
 --[[
-    Script Chống Lag Cực Hạn - Tối Ưu Hóa Nhẹ Nhàng (100,000 Studs)
+    Script Chống Lag Cực Hạn - Bản Vá Lỗi PlayerGui (100k Studs)
 ]]--
 
 local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-if CoreGui:FindFirstChild("AdvancedPerformanceHub") then
-    CoreGui.AdvancedPerformanceHub:Destroy()
+-- Xóa UI cũ nếu có tránh bị trùng
+if PlayerGui:FindFirstChild("AdvancedPerformanceHub") then
+    PlayerGui.AdvancedPerformanceHub:Destroy()
 end
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AdvancedPerformanceHub"
-screenGui.Parent = CoreGui
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
 
 -- ==========================================
 -- PHẦN 1: TỐI ƯU HÓA KHÔNG GIAN (CHỐNG TREO MÁY)
@@ -33,7 +35,7 @@ task.spawn(function()
             Terrain.WaterWaveTransparency = 1
         end
         
-        -- Quét định kỳ mỗi 1 giây thay vì quét liên tục để cứu máy tính bảng
+        -- Quét định kỳ mỗi 1 giây để không giật lag máy
         task.spawn(function()
             while true do
                 pcall(function()
@@ -51,7 +53,7 @@ task.spawn(function()
                         end
                     end
                 end)
-                task.wait(1) -- Nghỉ 1 giây rồi quét tiếp, cực kỳ mượt mà
+                task.wait(1)
             end
         end)
     end)
@@ -165,7 +167,6 @@ end
 
 local pingLbl = createInfoLine("📶 Ping: Đang tải...", 1)
 local fpsDetailLbl = createInfoLine("💻 Trạng thái: Hoạt động ổn định", 2)
-local statusLbl = "🚀 100k Studs Anti-Lag: Bật"
 
 local secretSign = Instance.new("TextLabel")
 secretSign.Size = UDim2.new(1, 0, 0, 15)
