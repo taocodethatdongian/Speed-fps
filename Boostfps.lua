@@ -71,4 +71,70 @@ end)
 -- PHẦN 2: DÒNG FPS GÓC TRÊN TRÁI
 -- ==========================================
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(0, 100, 0, 3
+fpsLabel.Size = UDim2.new(0, 100, 0, 30)
+fpsLabel.Position = UDim2.new(0, 15, 0, 15)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 128)
+fpsLabel.TextSize = 16
+fpsLabel.Font = Enum.Font.GothamBold
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
+fpsLabel.Text = "FPS: --"
+fpsLabel.Parent = screenGui
+
+local lastUpdate = 0
+local frameCount = 0
+RunService.RenderStepped:Connect(function(dt)
+    frameCount = frameCount + 1
+    lastUpdate = lastUpdate + dt
+    if lastUpdate >= 0.5 then
+        local fps = math.floor(frameCount / lastUpdate)
+        fpsLabel.Text = "FPS: " .. fps
+        fpsLabel.TextColor3 = Color3.fromRGB(math.random(100,255), 255, math.random(100,255))
+        frameCount = 0
+        lastUpdate = 0
+    end
+end)
+
+-- ==========================================
+-- PHẦN 3: NÚT TIA CHỚP GÓC TRÊN PHẢI
+-- ==========================================
+local lightningBtn = Instance.new("TextButton")
+lightningBtn.Size = UDim2.new(0, 45, 0, 45)
+lightningBtn.Position = UDim2.new(1, -60, 0, 15)
+lightningBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+lightningBtn.TextColor3 = Color3.fromRGB(255, 220, 0)
+lightningBtn.Text = "⚡"
+lightningBtn.TextSize = 24
+lightningBtn.Font = Enum.Font.GothamBold
+lightningBtn.Parent = screenGui
+
+local cornerBtn = Instance.new("UICorner")
+cornerBtn.CornerRadius = UDim.new(0, 10)
+cornerBtn.Parent = lightningBtn
+
+local strokeBtn = Instance.new("UIStroke")
+strokeBtn.Color = Color3.fromRGB(255, 220, 0)
+strokeBtn.Thickness = 2
+strokeBtn.Parent = lightningBtn
+
+-- ==========================================
+-- PHẦN 4: BẢNG GIAO DIỆN & CHỮ KÝ BÍ MẬT
+-- ==========================================
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 200)
+mainFrame.Position = UDim2.new(1, -320, 0, 70)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+local cornerFrame = Instance.new("UICorner")
+cornerFrame.CornerRadius = UDim.new(0, 12)
+cornerFrame.Parent = mainFrame
+
+local strokeFrame = Instance.new("UIStroke")
+strokeFrame.Color = Color3.fromRGB(255, 220, 0)
+strokeFrame.Thickness = 1.5
+strokeFrame.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0,
